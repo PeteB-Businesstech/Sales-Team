@@ -1,0 +1,36 @@
+{
+  "name": "sales-team",
+  "version": "1.0.0",
+  "description": "Paperclip-orchestrated Sales Team for Telarus/Avox cybersecurity and phone systems solutions",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "heartbeat": "node index.js --heartbeat",
+    "review": "node index.js --review",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "winston": "^3.13.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "keywords": [
+    "sales",
+    "leads",
+    "telarus",
+    "avox",
+    "cybersecurity",
+    "voip",
+    "paperclip"
+  ],
+  "license": "UNLICENSED",
+  "private": true
+}
