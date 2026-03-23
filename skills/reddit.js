@@ -18,6 +18,11 @@
 import { logEvent, TOS } from './logger.js';
 import { launchBrowser, navigateTo, humanScroll, readPause, closeBrowser, takeScreenshot } from './browser.js';
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+/** Maximum characters to store from a post's self-text body. */
+const SELFTEXT_SNIPPET_LEN = 500;
+
 // ─── Reddit OAuth token (optional) ───────────────────────────────────────────
 
 let _oauthToken = null;
@@ -115,7 +120,7 @@ export async function fetchSubredditPosts(subreddit, sort = 'hot', limit = 10) {
     title:    c.data.title,
     author:   c.data.author,
     url:      `https://www.reddit.com${c.data.permalink}`,
-    selftext: (c.data.selftext || '').slice(0, 500),
+    selftext: (c.data.selftext || '').slice(0, SELFTEXT_SNIPPET_LEN),
     score:    c.data.score,
     subreddit: c.data.subreddit,
     created:  new Date(c.data.created_utc * 1000).toISOString(),
@@ -165,7 +170,7 @@ export async function searchSubreddit(subreddit, query, limit = 10) {
     title:    c.data.title,
     author:   c.data.author,
     url:      `https://www.reddit.com${c.data.permalink}`,
-    selftext: (c.data.selftext || '').slice(0, 500),
+    selftext: (c.data.selftext || '').slice(0, SELFTEXT_SNIPPET_LEN),
     score:    c.data.score,
     subreddit: c.data.subreddit,
     created:  new Date(c.data.created_utc * 1000).toISOString(),

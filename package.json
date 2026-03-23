@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node index.js",
     "heartbeat": "node index.js --heartbeat",
+    "review": "node index.js --review",
     "test": "node --experimental-vm-modules node_modules/.bin/jest"
   },
   "engines": {

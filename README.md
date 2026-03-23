@@ -5,23 +5,81 @@ Automated, TOS-compliant sales-lead generation for **Telarus** (NordLayer, Trust
 ## Architecture
 
 ```
-index.js  (heartbeat runner)
-  └── agents/sales-manager.js   ← Orchestrator / Sales Manager Agent
-        ├── agents/cyber-lead-finder.js   ← Sub-agent: r/cybersecurity, r/ITManagers
-        └── agents/phone-lead-finder.js   ← Sub-agent: r/VOIP, r/sysadmin
-              │
-              ├── skills/reddit.js    (Reddit API + TOS-safe browser fallback)
-              ├── skills/linkedin.js  (Human-like outreach, TOS-compliant)
-              ├── skills/browser.js   (Stealth Playwright, human simulation)
-              └── skills/logger.js    (Structured logging + TOS compliance score)
+index.js  (entry point — heartbeat OR review)
+  ├── --heartbeat  →  agents/sales-manager.js   ← Orchestrator / Sales Manager Agent
+  │                     ├── agents/cyber-lead-finder.js   ← Sub-agent: r/cybersecurity, r/ITManagers
+  │                     └── agents/phone-lead-finder.js   ← Sub-agent: r/VOIP, r/sysadmin
+  │
+  └── --review     →  agents/thread-reviewer.js  ← Reviews threads & drafts posts
+                         └── skills/post-composer.js  ← Reddit post drafts for manual posting
+                         │
+                         (shared skills)
+                         ├── skills/reddit.js    (Reddit API + TOS-safe browser fallback)
+                         ├── skills/linkedin.js  (Human-like outreach, TOS-compliant)
+                         ├── skills/browser.js   (Stealth Playwright, human simulation)
+                         └── skills/logger.js    (Structured logging + TOS compliance score)
 ```
+
+## Commands
+
+| Command | Description |
+|---|---|
+| `npm start` / `node index.js` | Run daily lead-generation heartbeat (2 leads) |
+| `npm run heartbeat` | Same as above (explicit flag) |
+| `npm run review` | **Review Reddit threads + produce post drafts for manual posting** |
+
+## Thread Review (`npm run review`)
+
+The `--review` command scans the target subreddits, surfaces the most relevant recent threads, and writes two ready-to-post Reddit drafts that **you copy and post yourself**.
+
+### What it produces
+
+1. **Top 5 cyber threads** — links from r/cybersecurity, r/ITManagers, r/netsec, r/sysadmin
+2. **Top 5 phone/VoIP threads** — links from r/VOIP, r/sysadmin, r/ITManagers, r/MSP
+3. **Draft cyber post** — a genuine community question/discussion starter for r/cybersecurity
+4. **Draft phone post** — same for r/VOIP
+
+### Sample output
+
+```
+════════════════════════════════════════════════════════════
+  CYBERSECURITY THREADS  (Mon Mar 23 2026)
+════════════════════════════════════════════════════════════
+
+  #1 [r/cybersecurity]  ↑1243  3h ago  (relevance: 84)
+  Title : Is VoIP being overlooked in zero-trust rollouts?
+  Link  : https://www.reddit.com/r/cybersecurity/comments/abc123/...
+  By    : u/some_it_manager
+
+  #2 [r/ITManagers]  ↑87  18h ago  (relevance: 68)
+  Title : Compliance audit flagged our phone system — anyone else?
+  Link  : https://www.reddit.com/r/ITManagers/comments/xyz789/...
+  By    : u/another_user
+  Snip  : → "We just got hit by an audit and our SIP trunks weren't even in scope..."
+
+...
+
+════════════════════════════════════════════════════════════
+  DRAFT POST — CYBERSECURITY  →  r/cybersecurity
+════════════════════════════════════════════════════════════
+
+  ┌─ TITLE (copy this) ──────────────────────────────────────────
+  │ Is anyone else struggling to secure their VoIP/phone stack alongside the rest of their infrastructure?
+  └──────────────────────────────────────────────────────────────
+
+  ┌─ BODY (copy this — Markdown) ───────────────────────────────
+  │ **After reading through a bunch of recent threads here:** ...
+  └──────────────────────────────────────────────────────────────
+```
+
+The drafts include a disclosure line ("I work in the cybersecurity/UCaaS channel space") to stay TOS-compliant and community-appropriate.
 
 ## Daily Workflow (Human-Like)
 
 1. **Heartbeat** — `node index.js` runs once per day (scheduled by Paperclip)
 2. **Cyber LeadFinder** searches r/cybersecurity & r/ITManagers via Reddit API; reads posts with human delays (30–120 s); scores each for ICP relevance
 3. **Phone LeadFinder** searches r/VOIP & r/sysadmin similarly; focuses on migration/UCaaS pain points
-4. **Sales Manager** reviews both leads for TOS compliance, then triggers personalised LinkedIn outreach (or queues for human approval if no session cookie is present)
+4. **Sales Manager** reviews both leads for TOS compliance, then triggers personalized LinkedIn outreach (or queues for human approval if no session cookie is present)
 5. **Quota** — exactly **2 leads per day** (1 cyber, 1 phone)
 
 ## Setup
@@ -34,7 +92,10 @@ npm install
 cp .env.example .env
 # Edit .env — add Reddit API keys and LinkedIn session cookie
 
-# 3. Run heartbeat
+# 3. Run thread review (no credentials needed — uses public Reddit API)
+npm run review
+
+# 4. Run lead-generation heartbeat
 npm start
 ```
 
@@ -49,6 +110,7 @@ See `.env.example` for all required variables.
 | `REDDIT_USER_AGENT` | Bot user-agent string |
 | `LINKEDIN_SESSION_COOKIE` | `li_at` cookie from an active LinkedIn session |
 | `DAILY_LEAD_QUOTA` | Leads per heartbeat (default: `2`) |
+| `REVIEW_THREAD_LIMIT` | Threads per category in `--review` mode (default: `5`) |
 | `ACTION_DELAY_MIN_MS` | Min ms between browser actions (default: `5000`) |
 | `ACTION_DELAY_MAX_MS` | Max ms between browser actions (default: `10000`) |
 | `READ_PAUSE_MIN_MS` | Min ms "reading" a post (default: `30000`) |
