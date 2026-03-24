@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Credentials — NEVER commit these
+.env
+
+# Logs (can contain lead data — keep local only)
+logs/*.json
+logs/*.log
+logs/*.csv
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
